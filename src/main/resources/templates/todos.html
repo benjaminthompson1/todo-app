@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Todo Application</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .todo-form {
+            margin: 20px 0;
+        }
+        .todo-input {
+            padding: 8px;
+            width: 300px;
+        }
+        .todo-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .completed {
+            text-decoration: line-through;
+            color: #888;
+        }
+        button {
+            margin: 0 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .task-text {
+            flex-grow: 1;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Todo List</h1>
+    
+    <form class="todo-form" th:action="@{/add}" method="post">
+        <input type="text" name="task" class="todo-input" placeholder="Enter new task..." required>
+        <button type="submit">Add Task</button>
+    </form>
+
+    <div th:each="todo : ${todos}" class="todo-item">
+        <span th:text="${todo.task}" th:class="${todo.completed ? 'completed task-text' : 'task-text'}"></span>
+        
+        <form th:action="@{/toggle/{id}(id=${todo.id})}" method="post" style="display: inline;">
+            <button type="submit" th:text="${todo.completed ? 'Undo' : 'Complete'}"></button>
+        </form>
+        
+        <form th:action="@{/delete/{id}(id=${todo.id})}" method="post" style="display: inline;">
+            <button type="submit">Delete</button>
+        </form>
+    </div>
+</body>
+</html>
