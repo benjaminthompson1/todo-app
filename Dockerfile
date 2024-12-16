@@ -1,10 +1,9 @@
-# Dockerfile
-FROM maven:3.8.4-openjdk-17 as builder
+FROM ibmjava:17-sdk-s390x AS builder
 WORKDIR /app
 COPY . .
 RUN mvn clean package -DskipTests
 
-FROM openjdk:17-slim
+FROM ibmjava:17-jre-s390x
 WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
 EXPOSE 8080
