@@ -1,7 +1,5 @@
-FROM s390x/ibmjava:jre as builder
+FROM s390x/ibmjava:jdk as builder
 WORKDIR /app
-RUN apt-get update && \
-    apt-get install -y maven
 COPY . .
 RUN mvn clean package -DskipTests
 
