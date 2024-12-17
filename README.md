@@ -1,10 +1,10 @@
 # Spring Boot Todo Application
 
-A simple Todo application built with Spring Boot, Thymeleaf, and containerized using Docker/Podman.
+A simple Todo application built with Spring Boot, Thymeleaf, and containerized using Docker/Podman, with Db2 z/OS backend storage.
 
 ## Project Overview
 
-This application provides a basic todo list management system with a web interface, built using Spring Boot and Thymeleaf templating engine. It supports containerized deployment using either Docker or Podman.
+This application provides a basic todo list management system with a web interface, built using Spring Boot and Thymeleaf templating engine. It supports containerized deployment using either Docker or Podman and stores data in Db2 for z/OS.
 
 ## Project Structure
 ```
@@ -23,6 +23,8 @@ todo-app/
 │       │               └── service/
 │       │                   └── TodoService.java       # Business Logic Layer
 │       └── resources/
+│           ├── Db2/
+│           │   └── schema.ddl                         # Db2 z/OS DDL Scripts
 │           └── templates/
 │               └── todos.html                         # Thymeleaf Template
 ├── pom.xml                                           # Maven Dependencies
@@ -37,6 +39,7 @@ todo-app/
 - Maven
 - Docker/Podman
 - Spring MVC
+- Db2 for z/OS
 
 ## Getting Started
 
@@ -46,6 +49,7 @@ todo-app/
 - Docker or Podman (for containerized deployment)
 - Git (optional, for cloning)
 - curl (for downloading source archive)
+- Access to Db2 for z/OS instance
 
 ### Initial Setup
 
@@ -74,6 +78,18 @@ tar -xzf todo-app.tar.gz
 cd todo-app-main
 ```
 
+### Database Setup
+
+1. Navigate to the DDL script location:
+```bash
+cd src/main/resources/Db2
+```
+
+2. Execute the DDL script in Db2 for z/OS:
+```bash
+db2 -tvf schema.ddl
+```
+
 ### Container Deployment
 
 #### Using Docker
@@ -84,15 +100,6 @@ docker-compose up --build
 # Alternative: Manual build and run
 docker build -t todo-app .
 docker run -d --name todo-app -p 3001:8080 todo-app
-```
-
-#### Using Podman
-```bash
-# Build container
-podman build -t todo-app .
-
-# Run container
-podman run -d --name todo-app -p 3001:8080 todo-app
 ```
 
 ## API Endpoints
@@ -111,20 +118,15 @@ podman run -d --name todo-app -p 3001:8080 todo-app
 - `pom.xml`: Project dependencies and build configuration
 - `Dockerfile`: Container build instructions
 - `docker-compose.yml`: Container service definitions
+- `src/main/resources/Db2/schema.ddl`: Db2 database schema
 
 ### Application Access
 - Local development: http://localhost:8080
 - Container deployment: http://localhost:3001
 
-## Troubleshooting
-
-### Common Issues
-1. Port Conflicts: If ports 8080 or 3001 are already in use, modify the port mapping in docker-compose.yml or use different ports when running containers.
-2. Permission Issues: Ensure proper permissions when creating directories and running Docker/Podman commands.
-3. Maven Build Failures: Verify Java and Maven versions match the requirements.
-
 ### Verification Steps
 1. After setup, verify the project structure matches the provided directory layout
 2. Ensure all configuration files are present
 3. Confirm successful Maven build with no errors
-4. Verify application startup and accessibility via web browser
+4. Verify successful DDL execution in Db2
+5. Verify application startup and accessibility via web browser
