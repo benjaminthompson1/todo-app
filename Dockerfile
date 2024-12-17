@@ -1,5 +1,5 @@
 # Add .dockerignore
-FROM s390x/ibmjava:8.0.6.25-sdk AS builder
+FROM s390x/ibmjava:8-sdk AS builder
 WORKDIR /app
 
 # Cache Maven dependencies
@@ -15,7 +15,7 @@ RUN apt-get update && \
 COPY src/ src/
 RUN mvn clean package -DskipTests
 
-FROM s390x/ibmjava:8.0.6.25-jre
+FROM s390x/ibmjava:8-jre
 WORKDIR /app
 
 RUN addgroup --system spring && adduser --system spring --ingroup spring
