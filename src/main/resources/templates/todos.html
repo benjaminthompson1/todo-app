@@ -1,61 +1,250 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Todo Application</title>
+    <title>Todo Management</title>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
+            line-height: 1.6;
+            margin: 0;
             padding: 20px;
+            background-color: #f5f5f5;
         }
-        .todo-form {
-            margin: 20px 0;
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .todo-input {
+
+        h1, h2 {
+            color: #333;
+        }
+
+        .form-section {
+            background-color: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="datetime-local"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
             padding: 8px;
-            width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
         }
-        .todo-item {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #eee;
+
+        textarea {
+            height: 100px;
+            resize: vertical;
         }
-        .completed {
-            text-decoration: line-through;
-            color: #888;
-        }
+
         button {
-            margin: 0 5px;
-            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
             cursor: pointer;
+            margin-right: 5px;
         }
-        .task-text {
-            flex-grow: 1;
-            margin: 0 10px;
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .todo-list {
+            margin-top: 30px;
+        }
+
+        .todo-item {
+            background-color: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border-left: 4px solid #ddd;
+        }
+
+        .todo-item.high-priority {
+            border-left-color: #ff4444;
+        }
+
+        .todo-item.medium-priority {
+            border-left-color: #ffbb33;
+        }
+
+        .todo-item.low-priority {
+            border-left-color: #00C851;
+        }
+
+        .todo-item.completed {
+            background-color: #f8f8f8;
+        }
+
+        .todo-item.completed .todo-title {
+            text-decoration: line-through;
+            color: #666;
+        }
+
+        .todo-actions {
+            margin-top: 10px;
+        }
+
+        .todo-actions form {
+            display: inline;
+        }
+
+        .delete-btn {
+            background-color: #ff4444;
+        }
+
+        .delete-btn:hover {
+            background-color: #cc0000;
+        }
+
+        .todo-metadata {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .filters {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f8f8f8;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
-    <h1>Todo List</h1>
-    
-    <form class="todo-form" th:action="@{/add}" method="post">
-        <input type="text" name="task" class="todo-input" placeholder="Enter new task..." required>
-        <button type="submit">Add Task</button>
-    </form>
+    <div class="container">
+        <h1>Todo Management</h1>
 
-    <div th:each="todo : ${todos}" class="todo-item">
-        <span th:text="${todo.task}" th:class="${todo.completed ? 'completed task-text' : 'task-text'}"></span>
-        
-        <form th:action="@{/toggle/{id}(id=${todo.id})}" method="post" style="display: inline;">
-            <button type="submit" th:text="${todo.completed ? 'Undo' : 'Complete'}"></button>
-        </form>
-        
-        <form th:action="@{/delete/{id}(id=${todo.id})}" method="post" style="display: inline;">
-            <button type="submit">Delete</button>
-        </form>
+        <!-- Add Todo Form -->
+        <div class="form-section">
+            <h2>Add New Task</h2>
+            <form th:action="@{/todo/add}" method="post" th:object="${newTodo}">
+                <div class="form-group">
+                    <label for="title">Title:</label>
+                    <input type="text" id="title" th:field="*{title}" required/>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description:</label>
+                    <textarea id="description" th:field="*{description}"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="priority">Priority:</label>
+                    <select id="priority" th:field="*{priority}">
+                        <option th:each="priority : ${priorities}"
+                                th:value="${priority}"
+                                th:text="${priority}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="dueDate">Due Date:</label>
+                    <input type="datetime-local" id="dueDate" name="dueDate"/>
+                </div>
+
+                <div class="form-group">
+                    <label for="reminderDate">Reminder Date:</label>
+                    <input type="datetime-local" id="reminderDate" name="reminderDate"/>
+                </div>
+
+                <div class="form-group">
+                    <label for="recurrencePattern">Recurrence:</label>
+                    <select id="recurrencePattern" th:field="*{recurrencePattern}">
+                        <option th:each="pattern : ${recurrencePatterns}"
+                                th:value="${pattern}"
+                                th:text="${pattern}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Estimated Time:</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="number" name="estimatedHours" placeholder="Hours" min="0"/>
+                        <input type="number" name="estimatedMinutes" placeholder="Minutes" min="0" max="59"/>
+                    </div>
+                </div>
+
+                <button type="submit">Add Todo</button>
+            </form>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <h2>Filters</h2>
+            <form th:action="@{/todo/filter}" method="get">
+                <select name="priority">
+                    <option value="">All Priorities</option>
+                    <option th:each="priority : ${priorities}"
+                            th:value="${priority}"
+                            th:text="${priority}">
+                    </option>
+                </select>
+                <button type="submit">Filter</button>
+            </form>
+        </div>
+
+        <!-- Todo List -->
+        <div class="todo-list">
+            <h2>Tasks</h2>
+            <div th:each="todo : ${todos}" 
+                 th:class="${'todo-item ' + 
+                           (todo.completed ? 'completed ' : '') + 
+                           todo.priority.toString().toLowerCase() + '-priority'}">
+                
+                <h3 class="todo-title" th:text="${todo.title}"></h3>
+                <p th:text="${todo.description}"></p>
+                
+                <div class="todo-metadata">
+                    <span th:text="'Priority: ' + ${todo.priority}"></span>
+                    <span th:if="${todo.dueDate}" th:text="'Due: ' + ${#temporals.format(todo.dueDate, 'yyyy-MM-dd HH:mm')}"></span>
+                    <span th:if="${todo.estimatedTime}" 
+                          th:text="'Estimated Time: ' + ${todo.estimatedTime.toHours() + 'h ' + (todo.estimatedTime.toMinutesPart()) + 'm'}">
+                    </span>
+                    <span th:if="${todo.recurrencePattern != 'NONE'}" 
+                          th:text="'Recurrence: ' + ${todo.recurrencePattern}">
+                    </span>
+                </div>
+                
+                <div class="todo-actions">
+                    <form th:action="@{/todo/toggle/{id}(id=${todo.id})}" method="post" style="display: inline;">
+                        <button type="submit" th:text="${todo.completed ? 'Mark Incomplete' : 'Mark Complete'}"></button>
+                    </form>
+                    <form th:action="@{/todo/delete/{id}(id=${todo.id})}" method="post" style="display: inline;">
+                        <button type="submit" class="delete-btn">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 </html>
