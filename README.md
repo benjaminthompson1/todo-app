@@ -74,15 +74,6 @@ tar -xzf todo-app.tar.gz
 cd todo-app-main
 ```
 
-### Local Development Setup
-```bash
-# Build application
-mvn clean package
-
-# Run locally
-java -jar target/todo-app-0.0.1-SNAPSHOT.jar
-```
-
 ### Container Deployment
 
 #### Using Docker
