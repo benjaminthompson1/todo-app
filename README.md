@@ -26,8 +26,7 @@ todo-app/
 │           └── templates/
 │               └── todos.html                         # Thymeleaf Template
 ├── pom.xml                                           # Maven Dependencies
-├── Dockerfile                                        # Multi-stage Container Build
-└── docker-compose.yml                                # Container Orchestration
+└── Dockerfile                                        # Multi-stage Container Build
 ```
 
 ## Technology Stack
