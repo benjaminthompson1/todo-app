@@ -23,8 +23,6 @@ todo-app/
 │       │               └── service/
 │       │                   └── TodoService.java       # Business Logic Layer
 │       └── resources/
-│           ├── Db2/
-│           │   └── schema.ddl                         # Db2 z/OS DDL Scripts
 │           └── templates/
 │               └── todos.html                         # Thymeleaf Template
 ├── pom.xml                                           # Maven Dependencies
@@ -33,7 +31,7 @@ todo-app/
 ```
 
 ## Technology Stack
-- Java 17
+- Java 8
 - Spring Boot 2.7.0
 - Thymeleaf
 - Maven
@@ -44,9 +42,9 @@ todo-app/
 ## Getting Started
 
 ### Prerequisites
-- Java Development Kit (JDK) 17
+- Java Development Kit (JDK) 8
 - Maven 3.6+
-- Docker or Podman (for containerized deployment)
+- zCX Docker (for containerized deployment)
 - Git (optional, for cloning)
 - curl (for downloading source archive)
 - Access to Db2 for z/OS instance
@@ -78,17 +76,6 @@ tar -xzf todo-app.tar.gz
 cd todo-app-main
 ```
 
-### Database Setup
-
-1. Navigate to the DDL script location:
-```bash
-cd src/main/resources/Db2
-```
-
-2. Execute the DDL script in Db2 for z/OS:
-```bash
-db2 -tvf schema.ddl
-```
 
 ### Container Deployment
 
@@ -117,8 +104,6 @@ docker run -d --name todo-app -p 3001:8080 todo-app
 - `application.properties`: Spring Boot configuration
 - `pom.xml`: Project dependencies and build configuration
 - `Dockerfile`: Container build instructions
-- `docker-compose.yml`: Container service definitions
-- `src/main/resources/Db2/schema.ddl`: Db2 database schema
 
 ### Application Access
 - Local development: http://localhost:8080
@@ -128,5 +113,4 @@ docker run -d --name todo-app -p 3001:8080 todo-app
 1. After setup, verify the project structure matches the provided directory layout
 2. Ensure all configuration files are present
 3. Confirm successful Maven build with no errors
-4. Verify successful DDL execution in Db2
-5. Verify application startup and accessibility via web browser
+4. Verify application startup and accessibility via web browser
