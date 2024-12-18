@@ -1,103 +1,87 @@
 package com.example.todo.service;
 
 import com.example.todo.model.Todo;
+import com.example.todo.repository.TodoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.Optional;
 
 @Service
 public class TodoService {
-    private final List<Todo> todos = new ArrayList<>();
 
-    // Basic CRUD operations
+    private final TodoRepository todoRepository;
+
+    @Autowired
+    public TodoService(TodoRepository todoRepository) {
+        this.todoRepository = todoRepository;
+    }
+
+    /**
+     * Get all todo items
+     * @return List of all todos
+     */
     public List<Todo> getAllTodos() {
-        return new ArrayList<>(todos);
+        return todoRepository.findAll();
     }
 
+    /**
+     * Get a specific todo by ID
+     * @param id The ID of the todo
+     * @return The todo if found, or null
+     */
     public Todo getTodoById(Long id) {
-        return todos.stream()
-                   .filter(todo -> todo.getId().equals(id))
-                   .findFirst()
-                   .orElse(null);
+        Optional<Todo> todo = todoRepository.findById(id);
+        return todo.orElse(null);
     }
 
+    /**
+     * Create a new todo
+     * @param todo The todo to create
+     * @return The created todo
+     */
     public Todo createTodo(Todo todo) {
-        todos.add(todo);
-        return todo;
+        return todoRepository.save(todo);
     }
 
+    /**
+     * Update an existing todo
+     * @param id The ID of the todo to update
+     * @param updatedTodo The updated todo data
+     * @return The updated todo, or null if not found
+     */
     public Todo updateTodo(Long id, Todo updatedTodo) {
-        Optional<Todo> existingTodo = todos.stream()
-                                         .filter(t -> t.getId().equals(id))
-                                         .findFirst();
+        Optional<Todo> existingTodo = todoRepository.findById(id);
         
         if (existingTodo.isPresent()) {
             Todo todo = existingTodo.get();
             todo.setTitle(updatedTodo.getTitle());
             todo.setDescription(updatedTodo.getDescription());
-            todo.setDueDate(updatedTodo.getDueDate());
-            todo.setReminderDate(updatedTodo.getReminderDate());
-            todo.setPriority(updatedTodo.getPriority());
-            todo.setRecurrencePattern(updatedTodo.getRecurrencePattern());
-            todo.setEstimatedTime(updatedTodo.getEstimatedTime());
-            return todo;
+            todo.setComplete(updatedTodo.isComplete());
+            return todoRepository.save(todo);
         }
+        
         return null;
     }
 
+    /**
+     * Delete a todo by ID
+     * @param id The ID of the todo to delete
+     */
     public void deleteTodo(Long id) {
-        todos.removeIf(todo -> todo.getId().equals(id));
+        todoRepository.deleteById(id);
     }
 
-    // Task status management
-    public void toggleComplete(Long id) {
-        getTodoById(id).ifPresent(Todo::toggleComplete);
-    }
-
-    // Filter methods
-    public List<Todo> getCompletedTodos() {
-        return todos.stream()
-                   .filter(Todo::isCompleted)
-                   .collect(Collectors.toList());
-    }
-
-    public List<Todo> getIncompleteTodos() {
-        return todos.stream()
-                   .filter(todo -> !todo.isCompleted())
-                   .collect(Collectors.toList());
-    }
-
-    public List<Todo> getOverdueTodos() {
-        return todos.stream()
-                   .filter(Todo::isOverdue)
-                   .collect(Collectors.toList());
-    }
-
-    public List<Todo> getTodosByPriority(Todo.Priority priority) {
-        return todos.stream()
-                   .filter(todo -> todo.getPriority() == priority)
-                   .collect(Collectors.toList());
-    }
-
-    public List<Todo> getTodosWithReminders() {
-        return todos.stream()
-                   .filter(Todo::needsReminder)
-                   .collect(Collectors.toList());
-    }
-
-    public List<Todo> getRecurringTodos() {
-        return todos.stream()
-                   .filter(todo -> todo.getRecurrencePattern() != Todo.RecurrencePattern.NONE)
-                   .collect(Collectors.toList());
-    }
-
-    // Helper method for getTodoById that returns Optional
-    private Optional<Todo> getTodoById(Long id) {
-        return todos.stream()
-                   .filter(todo -> todo.getId().equals(id))
-                   .findFirst();
+    /**
+     * Toggle the completion status of a todo
+     * @param id The ID of the todo to toggle
+     */
+    public void toggleTodoComplete(Long id) {
+        Optional<Todo> todo = todoRepository.findById(id);
+        todo.ifPresent(t -> {
+            t.setComplete(!t.isComplete());
+            todoRepository.save(t);
+        });
     }
 }
